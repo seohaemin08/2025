@@ -3,10 +3,29 @@ import streamlit as st
 # 🌈 페이지 설정
 st.set_page_config(page_title="MBTI 진로 추천기 🎀✨", page_icon="💖", layout="centered")
 
+# 🌸 배경 색상 CSS
+page_bg_css = """
+<style>
+body {
+    background-color: #ffe6f2;
+}
+.card {
+    background-color: white;
+    border-radius: 20px;
+    padding: 20px;
+    box-shadow: 4px 4px 15px rgba(0,0,0,0.1);
+    text-align: center;
+    margin-top: 20px;
+}
+</style>
+"""
+
+st.markdown(page_bg_css, unsafe_allow_html=True)
+
 # 🎉 타이틀
 st.title("🌟 MBTI 기반 직업 추천 사이트 💼✨")
 st.markdown("""
-💖 안녕하세요! 귀엽고 뽀짝한 🌸 MBTI 진로 추천기 🌸에 오신 것을 환영합니다!
+💖 안녕하세요! 귀엽고 화려한 🌸 MBTI 진로 추천기 🌸에 오신 것을 환영합니다!
 
 👉 MBTI를 선택하면, 당신에게 딱 맞는 직업을 추천해드릴게요! 🐰🎀
 """)
@@ -43,17 +62,16 @@ mbti_jobs = {
 st.subheader("✨ 당신의 MBTI를 선택해주세요! 🐰💼")
 user_mbti = st.selectbox("👉 MBTI를 골라주세요:", mbti_list, index=0)
 
-# 🎀 추천 결과 출력
+# 🎀 추천 결과 카드 형식 출력
 if user_mbti:
     st.markdown(f"""
-    ## 🎉 당신의 MBTI: **{user_mbti}** 🌟
-
-    🐣 추천 직업은 바로바로... 💖 
-
-    👉 {mbti_jobs[user_mbti]} ✨✨
-
-    🌸 당신의 미래는 반짝반짝 빛날 거예요! 🌟🌈💼
-    """)
+    <div class="card">
+        <h2>🎉 당신의 MBTI: <b>{user_mbti}</b> 🌟</h2>
+        <p style="font-size:18px;">🐣 추천 직업은 바로바로... 💖</p>
+        <h3>{mbti_jobs[user_mbti]} ✨✨</h3>
+        <p>🌸 당신의 미래는 반짝반짝 빛날 거예요! 🌟🌈💼</p>
+    </div>
+    """, unsafe_allow_html=True)
 
 # 🐰 하단 귀여운 멘트
 st.markdown("""
@@ -62,4 +80,3 @@ st.markdown("""
 
 ✨ 오늘도 반짝이는 하루 되세요! 🐰🌸🌈
 """)
-
