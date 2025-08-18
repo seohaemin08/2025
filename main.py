@@ -9,13 +9,31 @@ page_bg_css = """
 body {
     background-color: #ffe6f2;
 }
-.card {
-    background-color: white;
-    border-radius: 20px;
-    padding: 20px;
-    box-shadow: 4px 4px 15px rgba(0,0,0,0.1);
+.tarot-card {
+    background: linear-gradient(135deg, #fff0f6, #ffe6f2);
+    border: 4px solid #ff99cc;
+    border-radius: 25px;
+    padding: 30px;
+    width: 300px;
+    margin: 30px auto;
     text-align: center;
-    margin-top: 20px;
+    font-family: 'Comic Sans MS', cursive, sans-serif;
+    box-shadow: 0px 8px 20px rgba(0,0,0,0.2);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.tarot-card:hover {
+    transform: rotate(-2deg) scale(1.05);
+    box-shadow: 0px 12px 25px rgba(0,0,0,0.3);
+}
+.tarot-title {
+    font-size: 24px;
+    color: #cc0066;
+    margin-bottom: 10px;
+}
+.tarot-job {
+    font-size: 20px;
+    color: #660033;
+    margin-top: 15px;
 }
 </style>
 """
@@ -23,11 +41,11 @@ body {
 st.markdown(page_bg_css, unsafe_allow_html=True)
 
 # 🎉 타이틀
-st.title("🌟 MBTI 기반 직업 추천 사이트 💼✨")
+st.title("🔮 MBTI 타로 진로 추천 💼✨")
 st.markdown("""
-💖 안녕하세요! 귀엽고 화려한 🌸 MBTI 진로 추천기 🌸에 오신 것을 환영합니다!
+💖 안녕하세요! 🌸 MBTI 타로 진로 추천 🌸에 오신 것을 환영합니다!
 
-👉 MBTI를 선택하면, 당신에게 딱 맞는 직업을 추천해드릴게요! 🐰🎀
+👉 MBTI를 선택하면, 타로카드처럼 ✨당신의 직업 운명✨을 알려드려요! 🐰🎀
 """)
 
 # 📝 MBTI 리스트
@@ -62,13 +80,13 @@ mbti_jobs = {
 st.subheader("✨ 당신의 MBTI를 선택해주세요! 🐰💼")
 user_mbti = st.selectbox("👉 MBTI를 골라주세요:", mbti_list, index=0)
 
-# 🎀 추천 결과 카드 형식 출력
+# 🎀 추천 결과 타로카드 형식 출력
 if user_mbti:
     st.markdown(f"""
-    <div class="card">
-        <h2>🎉 당신의 MBTI: <b>{user_mbti}</b> 🌟</h2>
-        <p style="font-size:18px;">🐣 추천 직업은 바로바로... 💖</p>
-        <h3>{mbti_jobs[user_mbti]} ✨✨</h3>
+    <div class="tarot-card">
+        <div class="tarot-title">🔮 당신의 MBTI: <b>{user_mbti}</b> 🌟</div>
+        <p>🐣 운명처럼 다가온 직업은... 💖</p>
+        <div class="tarot-job">{mbti_jobs[user_mbti]} ✨</div>
         <p>🌸 당신의 미래는 반짝반짝 빛날 거예요! 🌟🌈💼</p>
     </div>
     """, unsafe_allow_html=True)
@@ -78,5 +96,5 @@ st.markdown("""
 ---
 🌷 제작자: **당신의 AI 친구 🤖💖**
 
-✨ 오늘도 반짝이는 하루 되세요! 🐰🌸🌈
+✨ 오늘도 행운 가득한 하루 되세요! 🐰🔮🌸
 """)
