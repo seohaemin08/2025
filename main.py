@@ -6,7 +6,7 @@ st.set_page_config(page_title="MBTI 진로 추천기 🎀✨", page_icon="💖",
 # 🎉 타이틀
 st.title("🌟 MBTI 기반 직업 추천 사이트 💼✨")
 st.markdown("""
-💖 안녕하세요! 귀엽고 화려한 🌸 MBTI 진로 추천기 🌸에 오신 것을 환영합니다!
+💖 안녕하세요! 귀엽고 뽀짝한 🌸 MBTI 진로 추천기 🌸에 오신 것을 환영합니다!
 
 👉 MBTI를 선택하면, 당신에게 딱 맞는 직업을 추천해드릴게요! 🐰🎀
 """)
