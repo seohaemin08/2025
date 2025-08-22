@@ -93,7 +93,6 @@ if not df.empty:
     st.bar_chart(subj_group.set_index("과목"))
 
     # 귀여운 응원 메시지
-    st.balloons()
     st.markdown("🐰💖 오늘도 열공! 화이팅! 🌸✨")
 else:
     st.info("📌 기록이 없습니다. 오늘부터 시작해 보세요! 🐥")
