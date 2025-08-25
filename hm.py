@@ -2,135 +2,132 @@ import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
 import datetime
-import time
+import os
 import random
 
-st.set_page_config(page_title="📚 스마트 공부 도우미", layout="wide")
-st.markdown("<h1 style='text-align:center;color:#FF69B4;'>✨ 스마트 공부 도우미 🐥🌸</h1>", unsafe_allow_html=True)
+# --- 페이지 설정 ---
+st.set_page_config(page_title="📚 공부 도우미 앱", layout="centered")
 
-# -----------------------
-# 1. 공부 기록 관리
-# -----------------------
-if "study_log" not in st.session_state:
-    st.session_state.study_log = []
+# --- 타이틀 ---
+st.markdown("<h1 style='text-align: center; color: #FF69B4;'>✨ 공부 도우미 앱 🐥🌸</h1>", unsafe_allow_html=True)
+st.write("공부 계획을 세우고 귀엽게 관리해보세요! 🐰📖💖")
 
-st.header("📝 오늘의 공부 기록 입력")
-col1, col2 = st.columns(2)
-with col1:
-    subject = st.text_input("📚 과목")
-with col2:
-    hours = st.number_input("⏱ 공부 시간 (시간)", min_value=0.0, step=0.5)
+# --- CSV 파일 설정 ---
+LOG_FILE = "study_log.csv"
 
-if st.button("💾 기록 저장"):
-    if subject and hours > 0:
-        st.session_state.study_log.append({
-            "날짜": datetime.date.today().strftime("%Y-%m-%d"),
-            "과목": subject,
-            "시간": hours
-        })
-        st.success("기록이 저장되었습니다! 🎉")
-
-if st.session_state.study_log:
-    df = pd.DataFrame(st.session_state.study_log)
-    st.subheader("📊 공부 기록")
-    st.dataframe(df)
-
-    st.subheader("📈 과목별 총 공부 시간")
-    fig, ax = plt.subplots()
-    df.groupby("과목")["시간"].sum().plot(kind="bar", ax=ax, color="#FF69B4")
-    ax.set_ylabel("총 공부 시간 (시간)")
-    st.pyplot(fig)
-else:
-    st.info("📌 아직 기록이 없습니다. 오늘부터 시작해보세요!")
-
-# -----------------------
-# 2. 시험 대비 분석
-# -----------------------
-if st.session_state.study_log:
-    st.header("📖 시험 대비")
-    subjects = df["과목"].unique()
-    exam_subj = st.selectbox("시험 대비 과목 선택", subjects)
-    total_time = df[df["과목"]==exam_subj]["시간"].sum()
-    st.write(f"총 공부 시간: {total_time}시간")
-    if total_time < 2:
-        st.warning("⚠️ 공부 시간이 부족해요!")
+def load_data():
+    if os.path.exists(LOG_FILE):
+        return pd.read_csv(LOG_FILE)
     else:
-        st.success("💯 충분히 준비되고 있어요!")
+        return pd.DataFrame(columns=["날짜", "과목", "시간", "집중도", "피로도"])
 
-# -----------------------
-# 3. 과목 비중 분석
-# -----------------------
-if st.session_state.study_log:
-    st.header("🎨 과목 비중 분석")
-    fig2, ax2 = plt.subplots()
-    subject_time = df.groupby("과목")["시간"].sum()
-    colors = ["#FFC0CB", "#FFB6C1", "#FF69B4", "#FF1493", "#FF82A9"]
-    ax2.pie(subject_time, labels=subject_time.index, autopct="%1.1f%%", startangle=90, colors=colors)
-    ax2.axis("equal")
-    st.pyplot(fig2)
+def save_data(new_data):
+    df = load_data()
+    df = pd.concat([df, new_data], ignore_index=True)
+    df.to_csv(LOG_FILE, index=False)
 
-# -----------------------
-# 4. 집중도 & 피로도 기록
-# -----------------------
-st.header("🧠 집중도 & 피로도")
-if "status_log" not in st.session_state:
-    st.session_state.status_log = []
+# --- 오늘 공부 기록 입력 ---
+st.markdown("## 📝 오늘의 공부 기록 입력")
+exam_date = st.date_input("📅 시험 날짜", datetime.date.today())
+today = datetime.date.today()
+subjects_input = st.text_area("✏️ 오늘 공부한 과목과 시간을 입력 (예: 수학 2, 영어 1)").split(",")
 
-col1, col2 = st.columns(2)
+col1, col2, col3 = st.columns([1,1,1])
 with col1:
     focus = st.slider("🤓 집중도 (1~5)", 1, 5, 3)
 with col2:
     fatigue = st.slider("😵 피로도 (1~5)", 1, 5, 3)
+with col3:
+    goal_time = st.number_input("⏱ 오늘 목표 공부 시간(시간)", min_value=0, value=5)
 
-if st.button("상태 기록"):
-    st.session_state.status_log.append({
-        "날짜": datetime.date.today().strftime("%Y-%m-%d"),
-        "집중도": focus,
-        "피로도": fatigue
-    })
-    st.success("상태가 기록되었습니다!")
+if st.button("💾 오늘 기록 저장"):
+    rows = []
+    total_time = 0
+    for s in subjects_input:
+        parts = s.strip().split()
+        if len(parts) == 2:
+            subj, hour = parts
+            try:
+                hour_val = float(hour)
+                total_time += hour_val
+                rows.append({"날짜": today, "과목": subj, "시간": hour_val, 
+                             "집중도": focus, "피로도": fatigue})
+            except:
+                st.warning(f"⚠️ '{s}' 형식이 올바르지 않습니다.")
+    if rows:
+        save_data(pd.DataFrame(rows))
+        st.success("🎉 오늘 기록 저장 완료! 🐰")
 
-if st.session_state.status_log:
-    df_status = pd.DataFrame(st.session_state.status_log)
-    st.line_chart(df_status.set_index("날짜"))
+        # ✅ 오늘 공부 달성률 표시
+        percent = min(int((total_time/goal_time)*100),100)
+        st.progress(percent)
+        st.write(f"오늘 목표 달성률: {percent}% ⏱")
 
-# -----------------------
-# 5. 오늘 목표 체크리스트
-# -----------------------
-st.header("✅ 오늘의 목표")
-if "goals" not in st.session_state:
-    st.session_state.goals = []
+        # ✅ 랜덤 격려 메시지
+        messages = ["오늘도 열공! 🐰💖", "작은 성취도 큰 발전! 🌸✨", "계속하면 꿈에 가까워져요! 🐥💡"]
+        st.info(random.choice(messages))
 
-new_goal = st.text_input("✍️ 새로운 목표 추가")
-if st.button("목표 추가") and new_goal:
-    st.session_state.goals.append({"text": new_goal, "done": False})
+# --- AI 추천 기능 ---
+st.markdown("## 🔮 AI 추천 기능")
+days_left = (exam_date - today).days
+st.write(f"⏰ 시험까지 **{days_left}일** 남았습니다!")
 
-for i, goal in enumerate(st.session_state.goals):
-    checked = st.checkbox(goal["text"], value=goal["done"], key=f"goal_{i}")
-    st.session_state.goals[i]["done"] = checked
+importance_input = st.text_area("📊 과목 중요도 입력 (예: 수학:40, 영어:30, 과학:30)", "수학:40, 영어:30, 과학:30")
 
-if st.session_state.goals:
-    done_count = sum(g["done"] for g in st.session_state.goals)
-    total = len(st.session_state.goals)
-    percent = int((done_count/total)*100)
-    st.progress(percent)
-    st.write(f"🎯 목표 달성률: {done_count}/{total} ({percent}%)")
-    if percent == 100:
-        st.success("🏆 오늘의 열공왕! 전부 달성했어요! ✨")
+subj_split = []
+if importance_input.strip():
+    try:
+        for item in importance_input.split(","):
+            if ":" in item:
+                subj, val = item.split(":")
+                subj_split.append([subj.strip(), int(val.strip())])
+        if subj_split:
+            subj_df = pd.DataFrame(subj_split, columns=["과목", "비중(%)"])
+            st.markdown("### 📖 추천 공부 시간표")
+            st.dataframe(subj_df, use_container_width=True)
 
-# -----------------------
-# 6. Pomodoro 타이머
-# -----------------------
-st.header("⏱️ Pomodoro 타이머")
+            # 원형 그래프
+            st.markdown("### 🎨 과목 비중 그래프")
+            fig, ax = plt.subplots()
+            colors = ["#FFC0CB", "#FFB6C1", "#FF69B4", "#FF1493", "#FF82A9"]
+            ax.pie(subj_df["비중(%)"], labels=subj_df["과목"], autopct="%1.1f%%", startangle=90, colors=colors)
+            ax.axis("equal")
+            st.pyplot(fig)
+    except Exception as e:
+        st.error("⚠️ 입력 형식 오류! 예: 수학:40, 영어:30, 과학:30")
 
-def pomodoro_timer(minutes, label):
-    st.write(f"▶ {label} 시작! ({minutes}분)")
-    progress_bar = st.progress(0)
-    for sec in range(minutes*6):  # 테스트용 10초 단위
-        time.sleep(0.1)
-        progress_bar.progress(int((sec+1)/(minutes*6)*100))
-    st.success(f"✅ {label} 종료!")
+# --- 학습 데이터 분석 ---
+st.markdown("## 📈 학습 데이터 분석")
+df = load_data()
+if not df.empty:
+    # 집중도/피로도 추세
+    st.write("📊 집중도 & 피로도 추세")
+    daily = df.groupby("날짜")[["집중도","피로도"]].mean().reset_index()
+    st.line_chart(daily.set_index("날짜"))
 
-if st.button("Pomodoro 시작"):
-    pomodoro_timer(25, "공부")
-    pomodoro_timer(5, "휴식")
+    # 과목별 누적 공부 시간
+    st.write("📚 과목별 누적 공부 시간")
+    subj_group = df.groupby("과목")["시간"].sum().reset_index()
+    st.bar_chart(subj_group.set_index("과목"))
+
+    # 집중도 기반 과목 추천
+    st.write("💡 집중도 기반 오늘의 추천")
+    if len(df) >= 3:  # 최근 3일 이상 데이터 있을 때
+        recent = df.tail(5)
+        avg_focus = recent.groupby("과목")["집중도"].mean().sort_values()
+        low_focus = avg_focus.head(2)
+        high_focus = avg_focus.tail(2)
+        st.write("📌 집중도 낮은 과목 (짧게 복습 추천):")
+        for subj, val in low_focus.items():
+            st.write(f"- {subj}: 평균 집중도 {val:.1f} 😴")
+        st.write("📌 집중도 높은 과목 (심화 학습 추천):")
+        for subj, val in high_focus.items():
+            st.write(f"- {subj}: 평균 집중도 {val:.1f} 😊")
+
+    # 과목별 평균 집중도 & 피로도
+    st.write("📊 과목별 평균 집중도 & 피로도")
+    subj_stats = df.groupby("과목")[["집중도","피로도"]].mean()
+    st.dataframe(subj_stats.style.format("{:.1f}"))
+
+else:
+    st.info("📌 기록이 없습니다. 오늘부터 시작해 보세요! 🐥")
